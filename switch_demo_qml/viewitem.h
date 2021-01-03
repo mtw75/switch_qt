@@ -34,7 +34,9 @@ class ViewItem : public QQuickFramebufferObject
 {
      
 public:
-    ViewItem() {}
+    ViewItem() {
+        setMirrorVertically(true);
+    }
 
     QQuickFramebufferObject::Renderer* createRenderer() const
     {
