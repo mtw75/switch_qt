@@ -3,6 +3,7 @@
 #include <pxr/imaging/glf/glew.h>
 #include "Scene.h"
 #include <QMatrix4x4>
+#include <QPointF>
 #include <QOpenGLFunctions>
 #include <QElapsedTimer>
 #include <QQuickFramebufferObject>
@@ -13,20 +14,16 @@ class ViewItem;
 class FbItemRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
-    QOpenGLFramebufferObject* createFramebufferObject(const QSize& size)
-    {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        // optionally enable multisampling by doing format.setSamples(4);
-        return new QOpenGLFramebufferObject(size, format);
-    }
-    void render();
-    FbItemRenderer(const ViewItem * const item)  {
-        m_item = item; 
-    }
+    FbItemRenderer();
+    QOpenGLFramebufferObject* createFramebufferObject(const QSize& size);
+    void render() override;    
+    void	synchronize(QQuickFramebufferObject* item) override;
+protected:
     Scene* m_scene = nullptr;
-    QElapsedTimer m_elapsed;
-    const ViewItem* m_item =nullptr; 
+    qint64 m_prevTime=0; 
+    QElapsedTimer m_timer;
+    QPointF m_mousePosition;
+    bool m_buttonPressed = false;
 };
 
 
@@ -34,14 +31,18 @@ class ViewItem : public QQuickFramebufferObject
 {
      
 public:
-    ViewItem() {
-        setMirrorVertically(true);
-    }
+    ViewItem();
 
-    QQuickFramebufferObject::Renderer* createRenderer() const
-    {
-        return new FbItemRenderer(this);
-    }
-
+    QQuickFramebufferObject::Renderer* createRenderer() const;
+    void	mouseMoveEvent(QMouseEvent* event) override;
+    void	mousePressEvent(QMouseEvent* event) override;
+    void	mouseReleaseEvent(QMouseEvent* event) override;
+    void hoverMoveEvent(QHoverEvent* event) override;
+    const QPoint& mousePosition() { return m_mousePosition;  }
+    bool buttonPressed() { return m_buttonPressed;  }
+protected:
+    QPoint m_mousePosition; 
+    bool m_buttonPressed=false;
+   
 };
 

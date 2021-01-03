@@ -118,6 +118,7 @@ Scene::Scene() :
 
 void Scene::prepare(float seconds)
 {
+    qDebug() << "pre" << seconds;
     bool rotated = false;
    
     for(const auto& prim : mBoard.GetChildren())
@@ -279,6 +280,7 @@ void Scene::click()
 
 void Scene::cursor(float x, float y)
 {
+    qDebug() << "cursor" << x << y;
     GfVec2d size(1.0 / mWidth, 1.0 / mHeight);
 
     // Compute pick frustum.
