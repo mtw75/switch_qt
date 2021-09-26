@@ -1,0 +1,41 @@
+[package]
+# Semantic Versionning is used: https://semver.org/
+version = "1.0.0"
+
+# The title and description fields are primarily for displaying extension info in UI
+title = "item engineering tool connector"
+description="import projects from item engineering tool"
+
+# Path (relative to the root) or content of readme markdown file for UI.
+readme  = "docs/README.md"
+
+# URL of the extension source repository.
+repository = ""
+
+# One of categories for UI.
+category = "synctwin"
+
+# Keywords for the extension
+keywords = ["kit", "example"]
+
+# Preview image and icon. Folder named "data" automatically goes in git lfs (see .gitattributes file).
+# Preview image is shown in "Overview" of Extensions window. Screenshot of an extension might be a good preview image.
+preview_image = "data/preview.png"
+
+# Icon is shown in Extensions window, it is recommended to be square, of size 256x256.
+icon = "data/item_logo.png" 
+
+
+# Use omni.ui to build simple UI
+[dependencies]
+"omni.kit.uiapp" = {}
+
+# Main python module this extension provides, it will be publicly available as "import omni.hello.world".
+[[python.module]]
+name = "synctwin.item.connector"
+
+
+[settings]
+projects_path = "omniverse://ovnuc/Projects/BMW_MIRROR/ConnectedSystems/item_engineering_tool"
+parts_path = "omniverse://ovnuc/Projects/BMW_MIRROR/ConnectedSystems/item_engineering_tool/parts"
+itemtool_url = "https://item.engineering/DEde/tools/engineeringtool"
