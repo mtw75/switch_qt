@@ -21,37 +21,9 @@ class LevelOfDetail(IntEnum):
 class ItemConnectorExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
-    
-    def _open_or_create_stage(self, path, clear_exist=False):
-            if self._usd_context.open_stage(path):
-                stage = omni.usd.get_context().get_stage()                
-            else:
-                omni.usd.get_context().new_stage()
-                stage = omni.usd.get_context().get_stage()
-                stage.SaveAs(path)
-            if clear_exist: 
-                stage.GetRootLayer().Clear()
-            return stage
-
-
-
-    def createInMemoryStage(path):
-        
-        if os.path.isfile(path):
-            stage = Usd.Stage.Open(path)
-        else:
-            stage = Usd.Stage.CreateNew(path)
-            UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
-        return stage
 
     def project_url(self, project_id): 
         return f"{self._itemtool_url}/{project_id}"
-
-    def project_usdpath(self, project_id, level_of_detail):
-        if level_of_detail is None:
-            return f"{self._projects_path}/{project_id}.usd"
-        else:
-            return f"{self._projects_path}/{project_id}/lod_{level_of_detail}.usd"
     
     def on_startup(self, ext_id):
         self._usd_context = omni.usd.get_context()
@@ -70,12 +42,6 @@ class ItemConnectorExtension(omni.ext.IExt):
         print("[synctwin.item.connector] synctwin item startup")
 
         self._window = ui.Window("synctwin item connector", width=300, height=200)
-        
-       
-
-            
-        #omni.usd.get_context().new_stage()
-        #stage = omni.usd.get_context().get_stage()
 
         with self._window.frame:
             with ui.VStack():
@@ -117,7 +83,7 @@ class ItemConnectorExtension(omni.ext.IExt):
            self._on_selection_changed()
 
     def _on_selection_changed(self):
-        """Called when the user changes the selection"""
+        """Called when the user changes the selection""" 
         selection = self._selection.get_selected_prim_paths()
         stage = self._usd_context.get_stage()
         print("selection", selection )
@@ -126,49 +92,7 @@ class ItemConnectorExtension(omni.ext.IExt):
             prim = stage.GetPrimAtPath(selection[0])
             properties = prim.GetPropertyNames()
             #print(properties)
-            print(prim.GetCustomData())           
+            print(prim.GetCustomData())   
+
     def open_browser(self, url):        
         webbrowser.open(url)
-
-    def create_lodstage(self, level_of_detail):
-        stage_path = self.project_usdpath(self._project_id, level_of_detail)
-        stage = self._open_or_create_stage(stage_path, True)
-        
-        world = stage.DefinePrim("/World", "Xform")        
-        cube = stage.DefinePrim("/World/cube", "Cube")
-        cube.GetAttribute("size").Set(2.0)
-        stage.SetDefaultPrim(world)
-        stage.Save()
-        #print(stage.GetRootLayer().ExportToString())
-        return stage_path
-
-
-    def create_or_update_project_stage(self):
-        low_path = self.create_lodstage(LevelOfDetail.LOW)
-        
-        stage_path = self.project_usdpath(self._project_id, None)
-        project_id = self._project_id
-        # open and clear stage 
-        stage = self._open_or_create_stage(stage_path, True)
-        world = stage.DefinePrim("/World", "Xform")        
-        stage.SetDefaultPrim(world)
-        prim_path = f"/World/ie_{project_id}"
-        model_prim = stage.DefinePrim(prim_path, "component")
-        vset = model_prim.GetVariantSets().AddVariantSet('levelOfDetail')
-        # Create variant options.
-        vset.AddVariant('Low')        
-        vset.AddVariant('Medium')
-        vset.AddVariant('High') 
-
-        vset.SetVariantSelection('Low')
-        with vset.GetVariantEditContext():
-            model_prim.GetReferences().AddReference(low_path)
-        
-        
-
-
-
-
-         
-        
-        
