@@ -1,10 +1,14 @@
 import omni.ext
+from omni.services.transport.client.https_async import consumer
 import omni.ui as ui
 from pathlib import Path
 import carb.settings
 import os 
+import asyncio
 import webbrowser
 from enum import IntEnum
+import omni.services.client as _client
+import omni.services.transport.client.http_async
 
 from pxr import Usd, Sdf, Gf, UsdGeom
 from synctwin.item.connector.item_engineering_connector import ItemEngineeringConnector
@@ -26,6 +30,7 @@ class ItemConnectorExtension(omni.ext.IExt):
         return f"{self._itemtool_url}/{project_id}"
     
     def on_startup(self, ext_id):
+        
         self._usd_context = omni.usd.get_context()
         self._selection = self._usd_context.get_selection()
         self._events = self._usd_context.get_stage_event_stream()
@@ -63,16 +68,12 @@ class ItemConnectorExtension(omni.ext.IExt):
                     print("new value:", new_value.as_string)
                     self._project_id = new_value.as_string
                 def on_update_click():
-                    self.create_or_update_project_stage()
+                    self._item.import_project(self._project_id)
                 def on_browser_click():
-                    self.open_browser(self.project_url(self._project_id))
-                    
+                    self.open_browser(self.project_url(self._project_id))                    
                 ui.Spacer()
-        path = self._item.import_project(self._project_id)
-        omni.usd.get_context().open_stage(path)
-
-                
-
+        
+    
     def on_shutdown(self):
         print("[synctwin.item.connector] synctwin item shutdown")
 
